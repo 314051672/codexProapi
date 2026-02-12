@@ -196,46 +196,67 @@ export async function callCodexBackend(openaiReq, authProvider = null) {
 }
 
 /**
- * 处理一次 Chat Completions 请求：流式或非流式，并写入到 Express res
+ * 处理一次 Chat Completions 请求：流式或非流式，支持多账号故障切换（失败时自动尝试下一账号）
+ * @param {object} openaiReq - 请求体
+ * @param {object} res - Express res
+ * @param {Function} authProvider - () => auth 或轮询 getter，失败时可多次调用取下一账号
+ * @param {number} accountCount - 账号数量，用于故障切换最大重试次数
+ * @returns {Promise<object|null>} 成功时返回本次使用的 auth，失败返回 null
  */
-export async function handleChatCompletions(openaiReq, res, authProvider = null) {
+export async function handleChatCompletions(openaiReq, res, authProvider = null, accountCount = 1) {
   const stream = openaiReq.stream === true;
   const model = openaiReq.model || 'gpt-5.3-codex';
   const id = `chatcmpl-${randomUUID().replace(/-/g, '')}`;
-  try {
-    const { response: backendRes, model: backendModel } = await callCodexBackend(openaiReq, authProvider);
-    if (stream) {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      pipeStreamToOpenAI(backendRes.body, res, backendModel, id);
-      return;
-    }
-    const text = await parseStreamToText(backendRes.body);
-    res.json({
-      id,
-      object: 'chat.completion',
-      created: Math.floor(Date.now() / 1000),
-      model: backendModel,
-      choices: [
-        {
-          index: 0,
-          message: { role: 'assistant', content: text },
-          finish_reason: 'stop',
-        },
-      ],
-      usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
-    });
-  } catch (e) {
-    if (!res.headersSent) {
-      res.status(500).json({
-        error: {
-          message: e.message,
-          type: 'proxy_error',
-          code: 'internal_error',
-        },
+  const maxTries = Math.max(1, Number(accountCount) || 1);
+  let lastError = null;
+
+  for (let tryIndex = 0; tryIndex < maxTries; tryIndex++) {
+    try {
+      const auth = typeof authProvider === 'function' ? authProvider() : null;
+      const provider = auth ? () => auth : authProvider;
+      const { response: backendRes, model: backendModel } = await callCodexBackend(openaiReq, provider);
+      if (stream) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        pipeStreamToOpenAI(backendRes.body, res, backendModel, id);
+        return auth ?? null;
+      }
+      const text = await parseStreamToText(backendRes.body);
+      res.json({
+        id,
+        object: 'chat.completion',
+        created: Math.floor(Date.now() / 1000),
+        model: backendModel,
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: text },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
       });
+      return auth ?? null;
+    } catch (e) {
+      lastError = e;
+      if (res.headersSent) throw e;
+      const status = e.message && /^\D*(\d{3})/.exec(e.message);
+      const code = status ? Number(status[1]) : 0;
+      const isRetryable = code >= 400 && code < 600;
+      if (!isRetryable || tryIndex >= maxTries - 1) break;
     }
   }
+
+  if (!res.headersSent) {
+    res.status(500).json({
+      error: {
+        message: lastError?.message ?? 'Proxy error',
+        type: 'proxy_error',
+        code: 'internal_error',
+      },
+    });
+  }
+  return null;
 }

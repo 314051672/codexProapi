@@ -56,9 +56,13 @@ app.use((req, res, next) => {
   const start = Date.now();
   res._logMeta = { time: new Date().toISOString(), method: req.method, path: req.path };
   res.on('finish', () => {
+    const status = res.statusCode;
+    const level = status >= 500 ? 'ERR' : status >= 400 ? 'WARN' : 'SUCCESS';
     requestLogs.unshift({
+      type: 'request',
+      level,
       ...res._logMeta,
-      status: res.statusCode,
+      status,
       ms: Date.now() - start,
     });
     if (requestLogs.length > MAX_LOGS) requestLogs.pop();
@@ -123,29 +127,33 @@ app.get('/v1/models', (req, res) => {
 });
 
 app.post('/v1/chat/completions', async (req, res) => {
-  const auth = getAuthProvider();
-  if (res._logMeta) {
-    const { accounts } = listAccountsForApi();
-    const mask = auth.accountId ? auth.accountId.slice(0, 8) + '…' : '—';
+  const { accounts } = listAccountsForApi();
+  const accountCount = accounts.length || 1;
+  const usedAuth = await handleChatCompletions(req.body, res, getAuthProvider, accountCount);
+  if (res._logMeta && usedAuth) {
+    const mask = usedAuth.accountId ? usedAuth.accountId.slice(0, 8) + '…' : '—';
     const found = accounts.find((a) => a.accountIdMask === mask);
     res._logMeta.account = found ? (found.name || `账号${found.index + 1}`) : mask;
   }
-  await handleChatCompletions(req.body, res, () => auth);
 });
 
 app.post('/chat/completions', async (req, res) => {
-  const auth = getAuthProvider();
-  if (res._logMeta) {
-    const { accounts } = listAccountsForApi();
-    const mask = auth.accountId ? auth.accountId.slice(0, 8) + '…' : '—';
+  const { accounts } = listAccountsForApi();
+  const accountCount = accounts.length || 1;
+  const usedAuth = await handleChatCompletions(req.body, res, getAuthProvider, accountCount);
+  if (res._logMeta && usedAuth) {
+    const mask = usedAuth.accountId ? usedAuth.accountId.slice(0, 8) + '…' : '—';
     const found = accounts.find((a) => a.accountIdMask === mask);
     res._logMeta.account = found ? (found.name || `账号${found.index + 1}`) : mask;
   }
-  await handleChatCompletions(req.body, res, () => auth);
 });
 
 app.get('/api/logs', (req, res) => {
   res.json({ logs: requestLogs });
+});
+app.delete('/api/logs', (req, res) => {
+  requestLogs.length = 0;
+  res.json({ ok: true });
 });
 
 app.get('/api/accounts', (req, res) => {
@@ -195,6 +203,24 @@ async function main() {
     console.log('   对话接口: http://localhost:' + PORT + '/v1/chat/completions');
     console.log('   建议模型: gpt-5.3-codex\n');
   });
+
+  setInterval(() => {
+    if (loadAccountsForProxy().length > 1) {
+      requestLogs.unshift({
+        type: 'system',
+        level: 'INFO',
+        time: new Date().toISOString(),
+        method: '',
+        pathKey: 'logs.system',
+        path: '',
+        status: '',
+        ms: '',
+        messageKey: 'logs.poll_status',
+        account: '',
+      });
+      if (requestLogs.length > MAX_LOGS) requestLogs.pop();
+    }
+  }, 5000);
 }
 
 main().catch((e) => {
