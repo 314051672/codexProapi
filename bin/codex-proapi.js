@@ -13,6 +13,7 @@ if (isGlobal) {
   const dataDir = join(homedir(), '.codex-proapi');
   if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
   process.env.CODEX_ACCOUNTS_FILE = join(dataDir, 'accounts.json');
+  process.env.CODEX_DATA_DIR = dataDir;
 }
 
 import('../src/index.js');

@@ -1,5 +1,7 @@
 import { randomUUID } from 'crypto';
 import { loadAuth } from './auth.js';
+import { markAccountUnavailable } from './accountStatus.js';
+import { recordUsage, clearUsage } from './usageTracker.js';
 
 const BACKEND_URL = 'https://chatgpt.com/backend-api/codex/responses';
 
@@ -84,6 +86,23 @@ function messagesToInput(messages) {
   return [{ type: 'message', role: 'user', content: parts }];
 }
 
+/** 官方标准：约 4 字符 = 1 token，用于估算 prompt_tokens */
+function estimatePromptTokens(openaiReq) {
+  let chars = 0;
+  const messages = openaiReq.messages || [];
+  for (const msg of messages) {
+    const parts = getMessageContentParts(msg);
+    for (const p of parts) {
+      if (p.type === 'text' && p.text) chars += String(p.text).length;
+    }
+  }
+  const tools = openaiReq.tools;
+  if (Array.isArray(tools)) {
+    chars += JSON.stringify(tools).length;
+  }
+  return Math.max(0, Math.ceil(chars / 4));
+}
+
 /**
  * 构建发往 ChatGPT Codex 后端的请求体
  * 后端强制要求 stream 为 true，故始终传 true；是否向客户端流式由 handleChatCompletions 根据 openaiReq.stream 决定。
@@ -137,11 +156,14 @@ async function parseStreamToText(stream) {
 
 /**
  * 流式：将后端 SSE 转为 OpenAI Chat Completions SSE 格式并写入 res
+ * @param {object} [opts] - { onFinish(completionChars) } 流结束时回调，用于用量统计
  */
-function pipeStreamToOpenAI(backendStream, res, model, id) {
+function pipeStreamToOpenAI(backendStream, res, model, id, opts = {}) {
   const dec = new TextDecoder();
   let buffer = '';
   let hasSentRole = false;
+  let completionChars = 0;
+  const onFinish = opts.onFinish || (() => {});
   const sendChunk = (obj) => {
     res.write(`data: ${JSON.stringify(obj)}\n\n`);
   };
@@ -168,6 +190,7 @@ function pipeStreamToOpenAI(backendStream, res, model, id) {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6);
           if (data === '[DONE]') {
+            onFinish(completionChars);
             sendDelta({}, 'stop');
             res.write('data: [DONE]\n\n');
             return;
@@ -175,8 +198,8 @@ function pipeStreamToOpenAI(backendStream, res, model, id) {
           try {
             const event = JSON.parse(data);
             const type = event.type;
-            // 只转发 delta，避免与 output_item.done 重复
             if (type === 'response.output_text.delta' && event.delta) {
+              completionChars += String(event.delta).length;
               if (!hasSentRole) {
                 sendDelta({ role: 'assistant' });
                 hasSentRole = true;
@@ -186,10 +209,12 @@ function pipeStreamToOpenAI(backendStream, res, model, id) {
           } catch (_) {}
         }
       }
+      onFinish(completionChars);
       if (!hasSentRole) sendDelta({ role: 'assistant' });
       sendDelta({}, 'stop');
       res.write('data: [DONE]\n\n');
     } catch (e) {
+      onFinish(completionChars);
       sendDelta({ content: `\n[Error: ${e.message}]` }, 'stop');
       res.write('data: [DONE]\n\n');
     } finally {
@@ -230,10 +255,15 @@ export async function callCodexBackend(openaiReq, authProvider = null) {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
+    const status = res.status;
+    if (status === 401 || status === 403) {
+      markAccountUnavailable(auth.accountId);
+      clearUsage(auth.accountId);
+    }
     const text = await res.text();
-    throw new Error(`Codex 后端错误 ${res.status}: ${text.slice(0, 500)}`);
+    throw new Error(`Codex 后端错误 ${status}: ${text.slice(0, 500)}`);
   }
-  return { response: res, model: body.model, stream: body.stream };
+  return { response: res, model: body.model, stream: body.stream, auth };
 }
 
 /**
@@ -255,16 +285,31 @@ export async function handleChatCompletions(openaiReq, res, authProvider = null,
     try {
       const auth = typeof authProvider === 'function' ? authProvider() : null;
       const provider = auth ? () => auth : authProvider;
-      const { response: backendRes, model: backendModel } = await callCodexBackend(openaiReq, provider);
+      const { response: backendRes, model: backendModel, auth: usedAuth } = await callCodexBackend(openaiReq, provider);
+      const who = usedAuth || auth;
+      const promptTokens = estimatePromptTokens(openaiReq);
       if (stream) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        pipeStreamToOpenAI(backendRes.body, res, backendModel, id);
-        return auth ?? null;
+        pipeStreamToOpenAI(backendRes.body, res, backendModel, id, {
+          onFinish: (completionChars) => {
+            if (who?.accountId) {
+              recordUsage(who.accountId, {
+                prompt_tokens: promptTokens,
+                completion_tokens: Math.ceil(completionChars / 4),
+              });
+            }
+          },
+        });
+        return who ?? null;
       }
       const text = await parseStreamToText(backendRes.body);
+      const completionTokens = Math.ceil(text.length / 4);
+      if (who?.accountId) {
+        recordUsage(who.accountId, { prompt_tokens: promptTokens, completion_tokens: completionTokens });
+      }
       res.json({
         id,
         object: 'chat.completion',
@@ -277,9 +322,9 @@ export async function handleChatCompletions(openaiReq, res, authProvider = null,
             finish_reason: 'stop',
           },
         ],
-        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+        usage: { prompt_tokens: promptTokens, completion_tokens: completionTokens, total_tokens: promptTokens + completionTokens },
       });
-      return auth ?? null;
+      return who ?? null;
     } catch (e) {
       lastError = e;
       if (res.headersSent) throw e;

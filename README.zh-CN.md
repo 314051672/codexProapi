@@ -24,7 +24,7 @@
 
 ## 启动服务
 
-**一键启动（全局安装）：**
+**一键启动（全局安装，npm 会自动安装依赖）：**
 
 ```bash
 npm install -g codex-proapi
@@ -38,7 +38,7 @@ npm install
 npm start
 ```
 
-然后在浏览器打开 **http://localhost:1455/**，点击「使用 Codex 登录」通过 OAuth 添加账号。默认端口为 **1455**，可通过 `PORT` 环境变量修改。全局安装时，账号数据保存在 `~/.codex-proapi/`。
+然后在浏览器打开 **http://localhost:1455/**，点击「使用 Codex 登录」通过 OAuth 添加账号。默认端口为 **1455**，可通过 `PORT` 环境变量修改。全局安装时，账号与用量数据均保存在 `~/.codex-proapi/`。
 
 ## 在客户端中使用（Cline、Cursor 等）
 
@@ -53,6 +53,26 @@ npm start
 3. 照常发起请求即可，代理会使用你配置的账号。
 
 无需改代码或做服务端配置，只需在配置页添加账号即可使用。
+
+## 部署与「绑定 API」报 403
+
+若服务通过 **反向代理**（如 Nginx、Cloudflare）对外提供 HTTPS，而用户在前台用 `https://你的域名` 打开并点击「使用 Codex 登录」时，最后一步**绑定 API** 可能报错（如 `Token exchange failed: 403`）。原因是：OAuth 回调地址必须与浏览器实际访问的地址一致。
+
+**本服务默认已信任反向代理**（`trust proxy`），会优先使用请求头中的 `X-Forwarded-Proto` 和 `X-Forwarded-Host` 来生成 OAuth 回调地址。因此只要代理正确转发这两项，**通常无需配置**即可正常绑定：
+
+- **Nginx** 示例：
+  ```nginx
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Host $host;
+  ```
+- **Cloudflare** 等 CDN 一般会自动添加上述头。
+
+若代理未转发这些头、或仍出现 403，可显式设置公开地址：
+
+- **方式一**：`PUBLIC_URL=https://你的域名`（不要末尾斜杠）
+- **方式二**：`OAUTH_REDIRECT_URI=https://你的域名/auth/callback`
+
+重启后启动日志会打印当前 OAuth 回调地址；请确保用户**始终通过该域名**打开并登录。
 
 ## 多轮对话与后端格式说明
 

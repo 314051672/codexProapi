@@ -24,7 +24,7 @@ Exposes **Codex** (gpt-5.3-codex) as an **OpenAI-compatible API** so you can use
 
 ## Run the server
 
-**One command (global install):**
+**One command (global install; npm installs dependencies automatically):**
 
 ```bash
 npm install -g codex-proapi
@@ -38,7 +38,7 @@ npm install
 npm start
 ```
 
-Then open **http://localhost:1455/** in your browser and add Codex accounts via **Login with Codex** (OAuth). The default port is **1455**; set `PORT` if you need another. With global install, account data is stored in `~/.codex-proapi/`.
+Then open **http://localhost:1455/** in your browser and add Codex accounts via **Login with Codex** (OAuth). The default port is **1455**; set `PORT` if you need another. With global install, account and usage data are stored in `~/.codex-proapi/`.
 
 ## Use in your client (Cline, Cursor, etc.)
 
@@ -53,6 +53,26 @@ Then open **http://localhost:1455/** in your browser and add Codex accounts via 
 3. Send requests as usual; the proxy will use your configured accounts.
 
 No code or server configuration is required beyond adding accounts in the config page.
+
+## Deployment and "Token exchange failed: 403" when binding API
+
+If the service is behind a **reverse proxy** (e.g. Nginx, Cloudflare) and users open the site via `https://your-domain`, the last step of **binding the API** (exchanging the OAuth code for tokens) may fail with e.g. `Token exchange failed: 403` when the redirect URI does not match the browser URL.
+
+**The app trusts the reverse proxy by default** (`trust proxy`) and uses `X-Forwarded-Proto` and `X-Forwarded-Host` to build the OAuth callback URL. If your proxy forwards these headers, **no extra config is needed**:
+
+- **Nginx** example:
+  ```nginx
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Host $host;
+  ```
+- CDNs like **Cloudflare** usually add these headers automatically.
+
+If the proxy does not send them or you still get 403, set the public URL explicitly:
+
+- **Option 1:** `PUBLIC_URL=https://your-domain` (no trailing slash)
+- **Option 2:** `OAUTH_REDIRECT_URI=https://your-domain/auth/callback`
+
+After restart, the startup log shows the OAuth callback URL in use. Ensure users **always** open and log in via that URL.
 
 ## Multi-turn and backend format
 

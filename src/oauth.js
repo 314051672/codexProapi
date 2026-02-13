@@ -93,10 +93,13 @@ export async function exchangeCodeForToken(code, redirectUri, state) {
     let errMsg = `Token exchange failed: ${res.status}`;
     try {
       const errJson = JSON.parse(text);
-      if (errJson.error) errMsg += ` ${errJson.error}`;
-      if (errJson.error_description) errMsg += ` - ${errJson.error_description}`;
+      const errPart = errJson.error != null ? (typeof errJson.error === 'string' ? errJson.error : JSON.stringify(errJson.error)) : '';
+      const descPart = errJson.error_description != null ? (typeof errJson.error_description === 'string' ? errJson.error_description : JSON.stringify(errJson.error_description)) : '';
+      const msgPart = errJson.message != null ? (typeof errJson.message === 'string' ? errJson.message : JSON.stringify(errJson.message)) : '';
+      const parts = [errPart, descPart, msgPart].filter(Boolean);
+      if (parts.length) errMsg += ' ' + parts.join(' - ');
     } catch (_) {
-      if (text) errMsg += ` ${text.slice(0, 200)}`;
+      if (text) errMsg += ' ' + text.slice(0, 200);
     }
     throw new Error(errMsg);
   }

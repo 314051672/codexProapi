@@ -5,3 +5,5 @@ node_modules/
 data/
 *.learn/
 scripts/
+email_workers.js/
+browser-extension/
