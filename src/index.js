@@ -1,6 +1,7 @@
 import express from 'express';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { loadAuth, createRoundRobinProvider } from './auth.js';
 import { handleChatCompletions } from './proxy.js';
 import {
@@ -22,6 +23,25 @@ const PORT = Number(process.env.PORT) || 1455;
 const AUTH_PATH = process.env.CODEX_AUTH_PATH || null;
 const EMAIL_SERVICE_URL = (process.env.EMAIL_SERVICE_URL || 'https://kami666.xyz').replace(/\/$/, '');
 const ONECLICK_DOMAINS = ['qxfy.store', 'deploytools.site', 'loginvipcursor.icu', 'kami666.xyz', 'free.202602dashi27.top'];
+
+function getConfigPath() {
+  return join(dirname(getAccountsPath()), 'config.json');
+}
+function loadConfig() {
+  try {
+    const raw = readFileSync(getConfigPath(), 'utf8');
+    const j = JSON.parse(raw);
+    return { api_key: typeof j.api_key === 'string' ? j.api_key : '' };
+  } catch {
+    return { api_key: '' };
+  }
+}
+function saveConfig(obj) {
+  const p = getConfigPath();
+  const dir = dirname(p);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(p, JSON.stringify({ api_key: obj.api_key ?? '' }, null, 2), 'utf8');
+}
 
 function randomLocalPart(len = 10) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -78,7 +98,7 @@ app.use(express.static(join(__dirname, '..', 'public')));
 
 const requestLogs = [];
 const MAX_LOGS = 200;
-const LOG_PATHS = ['/health', '/v1/models', '/v1/chat/completions', '/chat/completions'];
+const LOG_PATHS = ['/health', '/v1/models', '/v1/chat/completions', '/chat/completions', '/responses'];
 
 app.use((req, res, next) => {
   if (!LOG_PATHS.includes(req.path)) return next();
@@ -96,6 +116,20 @@ app.use((req, res, next) => {
     });
     if (requestLogs.length > MAX_LOGS) requestLogs.pop();
   });
+  next();
+});
+
+const API_KEY_PATHS = ['/v1/models', '/v1/chat/completions', '/chat/completions', '/responses'];
+app.use((req, res, next) => {
+  if (!API_KEY_PATHS.includes(req.path)) return next();
+  const cfg = loadConfig();
+  if (!cfg.api_key || String(cfg.api_key).trim() === '') return next();
+  const auth = req.headers.authorization;
+  const token = (auth && String(auth).startsWith('Bearer ')) ? String(auth).slice(7).trim() : '';
+  if (token !== cfg.api_key) {
+    res.status(401).json({ error: 'Invalid or missing API key' });
+    return;
+  }
   next();
 });
 
@@ -176,6 +210,18 @@ app.post('/v1/chat/completions', async (req, res) => {
 });
 
 app.post('/chat/completions', async (req, res) => {
+  const { accounts } = listAccountsForApi();
+  const accountCount = accounts.length || 1;
+  const usedAuth = await handleChatCompletions(req.body, res, getAuthProvider, accountCount);
+  if (res._logMeta && usedAuth) {
+    const mask = usedAuth.accountId ? usedAuth.accountId.slice(0, 8) + '…' : '—';
+    const found = accounts.find((a) => a.accountIdMask === mask);
+    res._logMeta.account = found ? (found.name || `账号${found.index + 1}`) : mask;
+  }
+});
+
+// 兼容将 Base URL 设为根且请求 /responses 的客户端（如部分 ChatGPT 风格客户端）
+app.post('/responses', async (req, res) => {
   const { accounts } = listAccountsForApi();
   const accountCount = accounts.length || 1;
   const usedAuth = await handleChatCompletions(req.body, res, getAuthProvider, accountCount);
@@ -296,6 +342,26 @@ app.delete('/api/accounts/:index', (req, res) => {
     deleteAccount(req.params.index);
     refreshAuthProvider();
     res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/settings', (req, res) => {
+  try {
+    res.json(loadConfig());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.patch('/api/settings', (req, res) => {
+  try {
+    const api_key = typeof req.body?.api_key === 'string' ? req.body.api_key : '';
+    const current = loadConfig();
+    current.api_key = api_key;
+    saveConfig(current);
+    res.json({ ok: true, api_key: current.api_key });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

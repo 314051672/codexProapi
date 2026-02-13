@@ -44,12 +44,12 @@ Then open **http://localhost:1455/** in your browser and add Codex accounts via 
 
 | Setting   | Value |
 |----------|--------|
-| **Base URL** | `http://localhost:1455` (or your host/port) |
+| **Base URL** | `http://localhost:1455/v1` (must include `/v1`; or your host/port + `/v1`) |
 | **Model**    | `gpt-5.3-codex` (or `gpt-5.2-codex`, `gpt-5-codex`, `gpt-5`, `gpt-4`) |
 | **API Key**  | Any value (not validated; auth is from your Codex accounts) |
 
 1. Add accounts at **http://localhost:1455/** by clicking **Login with Codex**.
-2. In your client, set the Base URL and model above; API Key can be anything.
+2. In your client, set the Base URL (**must include `/v1`**) and model above; API Key can be anything.
 3. Send requests as usual; the proxy will use your configured accounts.
 
 No code or server configuration is required beyond adding accounts in the config page.

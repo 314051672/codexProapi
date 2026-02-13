@@ -425,6 +425,100 @@
     .settings-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
     .settings-panel { display: none; }
     .settings-panel.active { display: block; }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+    }
+    @media (min-width: 720px) {
+      .settings-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .settings-section-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 12px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-url-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .settings-url-block code { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-copy {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .btn-copy:hover { background: var(--accent-muted); border-color: var(--accent); color: var(--text); }
+    .settings-model-pill {
+      display: inline-block;
+      padding: 6px 12px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 8px;
+    }
+    .settings-quick-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .settings-quick-links li { margin-bottom: 0; }
+    .settings-quick-links a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+    .settings-quick-links a:last-child { border-bottom: none; }
+    .settings-quick-links a:hover { color: var(--accent); }
+    .settings-quick-links .link-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      opacity: 0.8;
+    }
+    .settings-about {
+      padding: 16px;
+      background: var(--surface-soft);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .settings-about .ver { font-family: var(--font-display); font-weight: 700; color: var(--accent); margin-right: 8px; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
     .badge-oauth { background: var(--accent-muted); color: var(--accent); }
     .badge-manual { background: var(--surface-hover); color: var(--text-muted); }
@@ -1143,7 +1237,7 @@
       <div class="logo-icon">CP</div>
       <div>
         <div class="logo-text">Codex Pro API</div>
-        <div class="logo-sub">Proxy v1.0.3</div>
+        <div class="logo-sub">Proxy v1.0.4</div>
       </div>
     </div>
     <nav class="menu">
@@ -1170,7 +1264,7 @@
         </button>
         <div>
           <div class="topbar-title">Codex Pro API</div>
-          <div class="topbar-sub" data-i18n="topbar.subtitle">CODEX PROXY SYSTEM v1.0.3</div>
+          <div class="topbar-sub" data-i18n="topbar.subtitle">CODEX PROXY SYSTEM v1.0.4</div>
         </div>
       </div>
       <div class="topbar-status">
@@ -1302,6 +1396,7 @@
         <section id="invoke-panel-base" class="invoke-panel active">
           <h2 class="doc-h2" data-i18n="invoke.base_url">Base URL</h2>
           <p class="doc-p"><code id="docBaseUrl" class="doc-url">—</code></p>
+          <p class="doc-p hint" style="margin-top: 8px;" data-i18n="invoke.base_url_hint">在 CLINE、Cursor 等客户端中请填写上述地址（须含 /v1）。</p>
         </section>
         <section id="invoke-panel-health" class="invoke-panel">
           <h2 class="doc-h2">GET /health</h2>
@@ -1359,28 +1454,66 @@
       </div>
       <div class="settings-tabs">
         <button type="button" class="settings-tab active" data-tab="interface" data-i18n="settings.tab_interface">Interface</button>
-        <button type="button" class="settings-tab" data-tab="server" data-i18n="settings.tab_server">Server Settings</button>
+        <button type="button" class="settings-tab" data-tab="server" data-i18n="settings.tab_server">Server</button>
       </div>
-      <div id="settings-interface" class="settings-panel active card" style="max-width: 560px;">
-        <div class="setting-row">
-          <div>
-            <div class="label" data-i18n="settings.language">Language</div>
-            <div class="hint" style="margin-top: 2px;" data-i18n="settings.language_hint">Switch interface language</div>
+      <div id="settings-interface" class="settings-panel active">
+        <div class="settings-grid">
+          <div class="card" style="max-width: 100%;">
+            <h3 class="settings-section-title" data-i18n="settings.section_interface">界面</h3>
+            <div class="setting-row">
+              <div>
+                <div class="label" data-i18n="settings.language">Language</div>
+                <div class="hint" style="margin-top: 2px;" data-i18n="settings.language_hint">Switch interface language</div>
+              </div>
+              <select class="lang-select" id="langSelect" aria-label="Language">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+            </div>
           </div>
-          <select class="lang-select" id="langSelect" aria-label="Language">
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-          </select>
+          <div class="card" style="max-width: 100%;">
+            <h3 class="settings-section-title" data-i18n="settings.section_about">关于</h3>
+            <div class="settings-about">
+              <span class="ver" id="settings-version">v1.0.4</span>
+              <span data-i18n="settings.about_desc">Codex Pro API · OpenAI 兼容代理</span>
+              <div style="margin-top: 10px;">
+                <a href="https://github.com/violettoolssite/codexProapi" target="_blank" rel="noopener" style="color: var(--accent); font-size: 12px;">GitHub</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="settings-server" class="settings-panel card" style="max-width: 560px;">
-        <div class="setting-row">
-          <div>
+      <div id="settings-server" class="settings-panel">
+        <div class="settings-grid">
+          <div class="card" style="max-width: 100%;">
+            <h3 class="settings-section-title" data-i18n="settings.section_apikey">API Key</h3>
+            <div class="label" data-i18n="settings.apikey_label">密钥（可选，仅一个）</div>
+            <div class="hint" style="margin-bottom: 8px;" data-i18n="settings.apikey_hint">未设置时客户端可任意填写；设置后可在客户端中填写此密钥。</div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input type="password" id="settingsApikeyInput" class="search-input" style="flex: 1; min-width: 200px; max-width: 360px;" placeholder="" data-i18n-placeholder="settings.apikey_placeholder" autocomplete="off">
+              <button type="button" class="btn-copy" id="btnSaveApikey" data-i18n="settings.save">保存</button>
+            </div>
+          </div>
+          <div class="card" style="max-width: 100%;">
+            <h3 class="settings-section-title" data-i18n="settings.section_api">API 与端点</h3>
             <div class="label" data-i18n="settings.api_url">API Base URL</div>
-            <div class="hint" style="margin-top: 4px;" id="settings-baseurl">—</div>
+            <div class="settings-url-block">
+              <code id="settings-baseurl">—</code>
+              <button type="button" class="btn-copy" id="btnCopyApiUrl" data-i18n="settings.copy">复制</button>
+            </div>
+            <div class="hint" style="padding-top: 0;" data-i18n="settings.api_hint">在客户端中请填写上述地址（须含 /v1）。</div>
+            <div class="label" style="margin-top: 14px;" data-i18n="settings.model_label">推荐模型</div>
+            <code class="settings-model-pill">gpt-5.3-codex</code>
+          </div>
+          <div class="card" style="max-width: 100%;">
+            <h3 class="settings-section-title" data-i18n="settings.section_links">常用链接</h3>
+            <ul class="settings-quick-links">
+              <li><a href="/health" target="_blank" rel="noopener"><svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg><span data-i18n="settings.link_health">健康检查</span></a></li>
+              <li><a href="#" id="settingsLinkOAuth"><svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span data-i18n="settings.link_oauth">使用 Codex 登录</span></a></li>
+              <li><a href="#/invoke"><svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span data-i18n="settings.link_invoke">调用文档</span></a></li>
+            </ul>
           </div>
         </div>
-        <div class="hint" style="padding-top: 0;" data-i18n="settings.api_hint">Use this URL in CLINE or any OpenAI-compatible client. Model: gpt-5.3-codex</div>
       </div>
     </div>
   </main>
@@ -1502,7 +1635,7 @@
         'nav.invoke': '调用',
         'nav.logs': '日志',
         'nav.settings': '设置',
-        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.3',
+        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.4',
         'topbar.online': '在线',
         'page.dashboard': '仪表盘',
         'page.models': '模型',
@@ -1552,13 +1685,31 @@
         'settings.system_config': '系统配置',
         'settings.tab_interface': '界面',
         'settings.tab_server': '服务器',
+        'settings.section_interface': '界面',
+        'settings.section_about': '关于',
+        'settings.about_desc': 'Codex Pro API · OpenAI 兼容代理',
+        'settings.section_apikey': 'API Key',
+        'settings.apikey_label': '密钥（可选，仅一个）',
+        'settings.apikey_hint': '未设置时不校验；设置后客户端请求须在 Header 中携带 Authorization: Bearer <密钥>，否则返回 401。',
+        'settings.apikey_placeholder': '留空表示不校验',
+        'settings.save': '保存',
+        'settings.saved': '已保存',
+        'settings.section_api': 'API 与端点',
+        'settings.section_links': '常用链接',
+        'settings.copy': '复制',
+        'settings.copied': '已复制',
+        'settings.model_label': '推荐模型',
+        'settings.link_health': '健康检查',
+        'settings.link_oauth': '使用 Codex 登录',
+        'settings.link_invoke': '调用文档',
         'settings.language': '语言',
         'settings.language_hint': '切换界面显示语言',
         'settings.api_url': 'API 基础地址',
-        'settings.api_hint': '在 CLINE 或任意 OpenAI 兼容客户端中使用此地址，模型填 gpt-5.3-codex。',
+        'settings.api_hint': '在客户端中请填写上述地址（须含 /v1）。',
         'page.invoke': '调用文档',
         'invoke.subtitle': 'API 调用说明与示例',
         'invoke.base_url': '基础地址',
+        'invoke.base_url_hint': '在 CLINE、Cursor 等客户端中请填写上述地址（须含 /v1）。',
         'invoke.health_desc': '健康检查，返回服务状态。',
         'invoke.models_desc': '返回可用模型列表（OpenAI 格式）。',
         'invoke.chat_desc': '对话补全，与 OpenAI Chat Completions 兼容，支持 stream。',
@@ -1607,7 +1758,7 @@
         'nav.invoke': 'Invoke',
         'nav.logs': 'Logs',
         'nav.settings': 'Settings',
-        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.3',
+        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.4',
         'topbar.online': 'ONLINE',
         'page.dashboard': 'Dashboard',
         'page.models': 'Models',
@@ -1656,14 +1807,32 @@
         'accounts.account_n': 'Account {n}',
         'settings.system_config': 'System Configuration',
         'settings.tab_interface': 'Interface',
-        'settings.tab_server': 'Server Settings',
+        'settings.tab_server': 'Server',
+        'settings.section_interface': 'Interface',
+        'settings.section_about': 'About',
+        'settings.about_desc': 'Codex Pro API · OpenAI-compatible proxy',
+        'settings.section_apikey': 'API Key',
+        'settings.apikey_label': 'Key (optional, single key only)',
+        'settings.apikey_hint': 'When empty, no check; when set, requests must include Header Authorization: Bearer <key>, otherwise 401.',
+        'settings.apikey_placeholder': 'Leave empty for no check',
+        'settings.save': 'Save',
+        'settings.saved': 'Saved',
+        'settings.section_api': 'API & Endpoints',
+        'settings.section_links': 'Quick Links',
+        'settings.copy': 'Copy',
+        'settings.copied': 'Copied!',
+        'settings.model_label': 'Recommended model',
+        'settings.link_health': 'Health check',
+        'settings.link_oauth': 'Login with Codex',
+        'settings.link_invoke': 'API docs',
         'settings.language': 'Language',
         'settings.language_hint': 'Switch interface language',
         'settings.api_url': 'API Base URL',
-        'settings.api_hint': 'Use this URL in CLINE or any OpenAI-compatible client. Model: gpt-5.3-codex',
+        'settings.api_hint': 'Use the URL above (must include /v1) in your client.',
         'page.invoke': 'API Docs',
         'invoke.subtitle': 'API reference and examples',
         'invoke.base_url': 'Base URL',
+        'invoke.base_url_hint': 'Use the URL above (must include /v1) in CLINE, Cursor, or other clients.',
         'invoke.health_desc': 'Health check, returns service status.',
         'invoke.models_desc': 'Returns available models list (OpenAI format).',
         'invoke.chat_desc': 'Chat completions, OpenAI-compatible, supports stream.',
@@ -1776,6 +1945,32 @@
       }
       if (location.hash !== '#/' + view) history.replaceState(null, '', '#/' + view);
       if (view === 'logs') loadLogs();
+      if (view === 'settings') loadSettings();
+    }
+    async function loadSettings() {
+      try {
+        const r = await fetch(API + '/api/settings');
+        const data = await r.json();
+        const input = document.getElementById('settingsApikeyInput');
+        if (input) input.value = data.api_key || '';
+      } catch (_) {}
+    }
+    function bindSettingsApikey() {
+      var btn = document.getElementById('btnSaveApikey');
+      var input = document.getElementById('settingsApikeyInput');
+      if (!btn || !input) return;
+      btn.addEventListener('click', async function () {
+        var val = (input.value || '').trim();
+        try {
+          await fetch(API + '/api/settings', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: val })
+          });
+          btn.textContent = typeof t === 'function' ? t('settings.saved') : 'Saved';
+          setTimeout(function () { btn.textContent = typeof t === 'function' ? t('settings.save') : 'Save'; }, 1500);
+        } catch (_) {}
+      });
     }
     var _lastLogs = [];
     function relativeTime(isoStr) {
@@ -1918,16 +2113,16 @@
     }
 
     function setEndpoint() {
-      const url = location.origin;
-      document.getElementById('dash-endpoint').textContent = url;
-      document.getElementById('settings-baseurl').textContent = url;
-      const base = url;
+      const origin = location.origin;
+      const apiBase = origin + '/v1';
+      document.getElementById('dash-endpoint').textContent = origin;
+      document.getElementById('settings-baseurl').textContent = apiBase;
       const docBase = document.getElementById('docBaseUrl');
-      if (docBase) docBase.textContent = base;
+      if (docBase) docBase.textContent = apiBase;
       var port = location.port || (location.protocol === 'https:' ? '443' : '80');
       if (port === '80' || port === '443') port = '1455';
-      var origin = location.origin || ('http://localhost:' + port);
-      var loginUrl = origin + '/auth/login';
+      var baseOrigin = location.origin || ('http://localhost:' + port);
+      var loginUrl = baseOrigin + '/auth/login';
       var oauthBtn = document.getElementById('oauthLoginBtn');
       if (oauthBtn) {
         oauthBtn.href = loginUrl;
@@ -1936,12 +2131,36 @@
           window.open(loginUrl, 'codex_oauth', 'width=520,height=640,scrollbars=yes,resizable=yes');
         });
       }
-      renderInvokeCommands(base);
+      var settingsOAuthLink = document.getElementById('settingsLinkOAuth');
+      if (settingsOAuthLink) {
+        settingsOAuthLink.href = loginUrl;
+        settingsOAuthLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          window.open(loginUrl, 'codex_oauth', 'width=520,height=640,scrollbars=yes,resizable=yes');
+        });
+      }
+      var btnCopy = document.getElementById('btnCopyApiUrl');
+      if (btnCopy) {
+        btnCopy.addEventListener('click', function () {
+          var el = document.getElementById('settings-baseurl');
+          var url = (el && el.textContent) ? el.textContent.trim() : '';
+          if (url && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+              var orig = btnCopy.textContent;
+              btnCopy.textContent = (typeof t === 'function' ? t('settings.copied') : 'Copied!');
+              setTimeout(function () { btnCopy.textContent = (typeof t === 'function' ? t('settings.copy') : orig); }, 1500);
+            });
+          }
+        });
+      }
+      renderInvokeCommands(origin, apiBase);
+      bindSettingsApikey();
     }
-    function renderInvokeCommands(base) {
-      const health = base + '/health';
-      const modelsUrl = base + '/v1/models';
-      const chatUrl = base + '/v1/chat/completions';
+    function renderInvokeCommands(origin, apiBase) {
+      if (!apiBase) apiBase = origin + '/v1';
+      const health = origin + '/health';
+      const modelsUrl = apiBase + '/models';
+      const chatUrl = apiBase + '/chat/completions';
       const chatBodyWin = '{\\"model\\": \\"gpt-5.3-codex\\", \\"messages\\": [{\\"role\\": \\"user\\", \\"content\\": \\"Hello\\"}]}';
       const chatBodyLinux = '{"model": "gpt-5.3-codex", "messages": [{"role": "user", "content": "Hello"}]}';
       function block(labelKey, rawCode, lang) {
@@ -1961,17 +2180,17 @@
         modelsCmds.innerHTML =
           block('invoke.curl_win', 'curl -X GET "' + modelsUrl + '"', 'bash') +
           block('invoke.curl_linux', "curl -X GET '" + modelsUrl + "'", 'bash') +
-          block('invoke.python', 'from openai import OpenAI\n\nclient = OpenAI(\n    base_url="' + base + '",\n    api_key="sk-"\n)\nfor m in client.models.list():\n    print(m)', 'python') +
-          block('invoke.nodejs', 'import OpenAI from "openai";\n\nconst client = new OpenAI({\n  baseURL: "' + base + '",\n  apiKey: "sk-"\n});\nconst list = await client.models.list();\nconsole.log(list.data);', 'javascript');
+          block('invoke.python', 'from openai import OpenAI\n\nclient = OpenAI(\n    base_url="' + apiBase + '",\n    api_key="sk-"\n)\nfor m in client.models.list():\n    print(m)', 'python') +
+          block('invoke.nodejs', 'import OpenAI from "openai";\n\nconst client = new OpenAI({\n  baseURL: "' + apiBase + '",\n  apiKey: "sk-"\n});\nconst list = await client.models.list();\nconsole.log(list.data);', 'javascript');
       }
       const chatCmds = document.getElementById('docChatCmds');
       if (chatCmds) {
-        const multiTurnPy = 'from openai import OpenAI\n\nclient = OpenAI(base_url="' + base + '", api_key="sk-")\nr = client.chat.completions.create(\n    model="gpt-5.3-codex",\n    messages=[\n        {"role": "user", "content": "记住这个数字：42"},\n        {"role": "assistant", "content": "好的，我记住了 42。"},\n        {"role": "user", "content": "我刚刚让你记住的数字是多少？只回答数字。"}\n    ]\n)\nprint(r.choices[0].message.content)';
+        const multiTurnPy = 'from openai import OpenAI\n\nclient = OpenAI(base_url="' + apiBase + '", api_key="sk-")\nr = client.chat.completions.create(\n    model="gpt-5.3-codex",\n    messages=[\n        {"role": "user", "content": "记住这个数字：42"},\n        {"role": "assistant", "content": "好的，我记住了 42。"},\n        {"role": "user", "content": "我刚刚让你记住的数字是多少？只回答数字。"}\n    ]\n)\nprint(r.choices[0].message.content)';
         chatCmds.innerHTML =
           block('invoke.curl_win', 'curl -X POST "' + chatUrl + '" ^\n  -H "Content-Type: application/json" ^\n  -d "' + chatBodyWin + '"', 'bash') +
           block('invoke.curl_linux', "curl -X POST '" + chatUrl + "' \\\n  -H 'Content-Type: application/json' \\\n  -d '" + chatBodyLinux + "'", 'bash') +
-          block('invoke.python', 'from openai import OpenAI\n\nclient = OpenAI(\n    base_url="' + base + '",\n    api_key="sk-"\n)\nr = client.chat.completions.create(\n    model="gpt-5.3-codex",\n    messages=[{"role": "user", "content": "Hello"}]\n)\nprint(r)', 'python') +
-          block('invoke.nodejs', 'import OpenAI from "openai";\n\nconst client = new OpenAI({\n  baseURL: "' + base + '",\n  apiKey: "sk-"\n});\nconst r = await client.chat.completions.create({\n  model: "gpt-5.3-codex",\n  messages: [{ role: "user", content: "Hello" }]\n});\nconsole.log(r);', 'javascript') +
+          block('invoke.python', 'from openai import OpenAI\n\nclient = OpenAI(\n    base_url="' + apiBase + '",\n    api_key="sk-"\n)\nr = client.chat.completions.create(\n    model="gpt-5.3-codex",\n    messages=[{"role": "user", "content": "Hello"}]\n)\nprint(r)', 'python') +
+          block('invoke.nodejs', 'import OpenAI from "openai";\n\nconst client = new OpenAI({\n  baseURL: "' + apiBase + '",\n  apiKey: "sk-"\n});\nconst r = await client.chat.completions.create({\n  model: "gpt-5.3-codex",\n  messages: [{ role: "user", content: "Hello" }]\n});\nconsole.log(r);', 'javascript') +
           '<div class="doc-section" style="margin-top:24px"><h3 class="doc-h2" data-i18n="invoke.chat_multi_turn">' + (t('invoke.chat_multi_turn') || '多轮对话示例') + '</h3><div class="doc-cmd-block"><pre class="doc-pre language-python"><code class="language-python">' + escapeHtml(multiTurnPy) + '</code></pre></div></div>';
       }
       if (typeof Prism !== 'undefined') {
