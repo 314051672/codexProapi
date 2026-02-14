@@ -18,72 +18,75 @@
 
 ---
 
-## 前置条件
+## 如何开始使用
 
-- **Node.js** 18 或更高
+### 方式一：桌面版（推荐）
 
-## 启动服务
+不想用命令行时，可直接安装桌面版：
 
-**一键启动（全局安装，npm 会自动安装依赖）：**
+1. 打开 [GitHub Releases](https://github.com/violettoolssite/codexProapi/releases)。
+2. 选择最新版本（如 `v1.0.6`），在 **Assets** 中下载您系统对应的**安装包**：
+   - **Windows**：`Codex Pro API Setup x.x.x.exe`（安装时可选路径、桌面/开始菜单快捷方式）
+   - **macOS**：`Codex Pro API-x.x.x.dmg`
+   - **Linux**：`Codex Pro API-x.x.x.AppImage`
+3. 安装并运行后，配置页会**直接在软件窗口内打开**，无需使用浏览器；关闭软件后，本地服务会随之关闭。账号与数据保存在您本机的用户数据目录，与安装目录分离。
+
+### 方式二：命令行运行
+
+需要 **Node.js** 18 或更高。在终端执行：
 
 ```bash
 npm install -g codex-proapi
 codex-proapi
 ```
 
-**或在项目目录运行：**
+或在项目目录执行 `npm install` 后运行 `npm start`。然后在浏览器打开 **http://localhost:1455/**。默认端口为 **1455**；全局安装时，账号与用量数据保存在 `~/.codex-proapi/`。
 
-```bash
-npm install
-npm start
-```
-
-然后在浏览器打开 **http://localhost:1455/**，点击「使用 Codex 登录」通过 OAuth 添加账号。默认端口为 **1455**，可通过 `PORT` 环境变量修改。全局安装时，账号与用量数据均保存在 `~/.codex-proapi/`。
+---
 
 ## 在客户端中使用（Cline、Cursor 等）
 
 | 配置项     | 填写内容 |
 |------------|----------|
-| **Base URL** | `http://localhost:1455/v1`（须含 `/v1`；或你的主机与端口 + `/v1`） |
+| **Base URL** | `http://localhost:1455/v1`（须含 `/v1`；若使用远程或其它端口，请改为对应地址 + `/v1`） |
 | **模型**     | `gpt-5.3-codex`（或 `gpt-5.2-codex`、`gpt-5-codex`、`gpt-5`、`gpt-4`） |
-| **API Key**  | 任意填写（不校验；认证来自已配置的 Codex 账号） |
+| **API Key**  | 任意填写（不校验；认证来自您已配置的 Codex 账号） |
 
-1. 在 **http://localhost:1455/** 点击「使用 Codex 登录」添加账号。
-2. 在客户端中按上表设置 Base URL（**必须带 `/v1`**）和模型，API Key 随意。
-3. 照常发起请求即可，代理会使用你配置的账号。
+**操作步骤：**
 
-无需改代码或做服务端配置，只需在配置页添加账号即可使用。
+1. 在 **http://localhost:1455/** 的「账号」页点击「使用 Codex 登录」添加账号（或使用「添加账号」→「粘贴 JSON」）。
+2. 在 Cline、Cursor 等客户端中按上表设置 **Base URL**（必须带 `/v1`）和**模型**，API Key 随意。
+3. 照常发起对话即可，代理会使用您配置的账号进行轮询。
 
-## 部署与「绑定 API」报 403
+---
 
-若服务通过 **反向代理**（如 Nginx、Cloudflare）对外提供 HTTPS，而用户在前台用 `https://你的域名` 打开并点击「使用 Codex 登录」时，最后一步**绑定 API** 可能报错（如 `Token exchange failed: 403`）。原因是：OAuth 回调地址必须与浏览器实际访问的地址一致。
+## 登录时提示「地区限制」或 access_denied
 
-**本服务默认已信任反向代理**（`trust proxy`），会优先使用请求头中的 `X-Forwarded-Proto` 和 `X-Forwarded-Host` 来生成 OAuth 回调地址。因此只要代理正确转发这两项，**通常无需配置**即可正常绑定：
+若您点击「使用 Codex 登录」后出现**地区限制**、**access_denied** 或类似提示，说明当前网络/地区无法使用该登录方式。您可以：
 
-- **Nginx** 示例：
-  ```nginx
-  proxy_set_header X-Forwarded-Proto $scheme;
-  proxy_set_header X-Forwarded-Host $host;
-  ```
-- **Cloudflare** 等 CDN 一般会自动添加上述头。
+1. **使用网络代理（VPN）** 后再次点击「使用 Codex 登录」重试。
+2. **改用粘贴 auth.json**：在能正常登录 Codex 的设备上（例如另一台电脑或已开代理的浏览器），打开 `~/.codex/auth.json`（Windows：`%USERPROFILE%\\.codex\\auth.json`）复制全部内容，在本页「账号」→「添加账号」→「粘贴 JSON」中粘贴并添加。
 
-若代理未转发这些头、或仍出现 403，可显式设置公开地址：
+页面上出现此类错误时也会显示上述操作说明。
 
-- **方式一**：`PUBLIC_URL=https://你的域名`（不要末尾斜杠）
-- **方式二**：`OAUTH_REDIRECT_URI=https://你的域名/auth/callback`
+---
 
-重启后启动日志会打印当前 OAuth 回调地址；请确保用户**始终通过该域名**打开并登录。
+## 通过他人提供的链接使用时出现 403
 
-## 多轮对话与后端格式说明
+若您是通过别人提供的网址（如 `https://xxx.com`）打开本服务，在点击「使用 Codex 登录」最后一步时出现 **403** 或「Token exchange failed」等提示，属于服务端回调地址配置问题。请联系**提供该链接的服务方**检查域名与 OAuth 回调配置；您本地无需修改。
 
-本服务上游为 ChatGPT 的 Codex 后端（`chatgpt.com/backend-api/codex/responses`）。该后端对 **assistant** 消息的 content 只接受 `output_text` 等「输出」类型；若对 assistant 使用 `input_text` 会返回 400。因此代理采用折中方案：**不单独提交 assistant 消息**，而是把整段对话（含 user / assistant / system）拼成一段带 `User:`、`Assistant:`、`System:` 前缀的文本，作为**一条 user 的 input_text** 发给后端。客户端仍按 OpenAI 格式传 `messages: [{role, content}, ...]`，多轮对话由代理自动完成上述转换。
+---
 
 ## 功能说明
 
-- **多账号轮询与故障切换** — 请求在多账号间轮询；某账号失败时自动切换下一个。
-- **配置页** — 仪表盘、模型（额度）、账号（OAuth 登录）、日志（级别筛选、搜索、清空）、设置（语言、Base URL）。数据每 5 秒自动刷新。
+- **多账号轮询与故障切换** — 请求在您添加的多个账号间轮询；某账号失败时自动切换下一个。
+- **配置页** — 仪表盘、模型（额度）、账号（OAuth 登录 / 粘贴 JSON）、日志、设置（语言、Base URL）。数据每 5 秒自动刷新。
 - **响应式界面** — 支持桌面与手机；小屏下侧栏收起到菜单。
-- **中英双语** — 界面与日志文案支持英文与简体中文。
+- **中英双语** — 界面与日志支持英文与简体中文。
+
+本服务支持多轮对话；在客户端按 OpenAI 格式传 `messages` 即可，代理会自动处理。
+
+---
 
 ## 使用 [free.violetteam.cloud](https://free.violetteam.cloud/) 接收验证码
 

@@ -1,6 +1,6 @@
 import express from 'express';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join, dirname, resolve } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { loadAuth, createRoundRobinProvider } from './auth.js';
 import { handleChatCompletions } from './proxy.js';
@@ -367,7 +367,7 @@ app.patch('/api/settings', (req, res) => {
   }
 });
 
-async function main() {
+function startServer() {
   const n = refreshAuthProvider();
   if (n > 0) {
     console.log('[OK] 已加载 ' + n + ' 个账号（轮询）');
@@ -379,7 +379,7 @@ async function main() {
       console.warn('[WARN] 未配置账号，请访问配置页添加或设置 CODEX_AUTH_PATH:', e.message);
     }
   }
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     const mockReq = { get: (h) => (h === 'host' ? `localhost:${PORT}` : undefined), secure: false };
     const oauthRedirect = getOAuthRedirectUri(mockReq);
     console.log('\nCodex Pro API 已启动 http://0.0.0.0:' + PORT);
@@ -407,9 +407,14 @@ async function main() {
       if (requestLogs.length > MAX_LOGS) requestLogs.pop();
     }
   }, 5000);
+  return server;
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+export { app, startServer, PORT };
+
+const isMain =
+  process.argv[1] &&
+  pathToFileURL(resolve(process.argv[1])).href === new URL(import.meta.url).href;
+if (isMain) {
+  startServer();
+}

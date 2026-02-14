@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Codex Pro API</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -216,24 +217,24 @@
       justify-content: space-between;
       box-shadow: 0 2px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(0,245,255,0.08);
     }
-    .topbar-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: 0.06em; color: var(--text); }
-    .topbar-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; letter-spacing: 0.05em; }
+    .topbar-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.05em; color: var(--text); }
+    .topbar-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.12em; opacity: 0.85; }
     .topbar-status {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .topbar-status .dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 12px var(--success), 0 0 0 2px rgba(0,255,136,0.3);
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent), 0 0 0 2px rgba(0,245,255,0.25);
       animation: statusPulse 2s ease-in-out infinite;
     }
     @keyframes statusPulse {
-      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px var(--success), 0 0 0 2px rgba(0,255,136,0.3); }
-      50% { opacity: 0.9; transform: scale(1.15); box-shadow: 0 0 20px var(--success), 0 0 0 2px rgba(0,255,136,0.5); }
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px var(--accent), 0 0 0 2px rgba(0,245,255,0.25); }
+      50% { opacity: 0.9; transform: scale(1.1); box-shadow: 0 0 16px var(--accent), 0 0 0 2px rgba(0,245,255,0.4); }
     }
-    .topbar-status .label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .topbar-status .label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; }
     .btn-icon {
       width: 36px; height: 36px;
       border: 1px solid transparent; background: transparent; color: var(--text-muted);
@@ -245,12 +246,20 @@
     .btn-icon:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--border-strong); box-shadow: 0 0 16px rgba(0,245,255,0.15); transform: rotate(90deg); }
     .btn-icon-text { width: auto; padding: 0 10px; font-size: 12px; }
     .btn-icon-text:hover { transform: none; }
+    #btnRefresh {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-weight: 500;
+    }
+    #btnRefresh:hover { border-color: var(--accent); color: var(--accent); }
     .main {
       flex: 1;
       min-height: 0;
+      min-width: 0;
+      width: 100%;
       padding: 32px 40px 48px;
       overflow-y: auto;
-      max-width: 1000px;
     }
     .view {
       display: none;
@@ -265,42 +274,50 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
     }
     .page-title {
       font-family: var(--font-display);
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      margin: 0 0 6px 0;
+      letter-spacing: 0.06em;
+      margin: 0 0 8px 0;
       color: var(--text);
-      text-shadow: 0 0 30px rgba(0,245,255,0.2);
+      text-shadow: 0 0 30px rgba(0,245,255,0.15);
     }
     .page-subtitle {
       font-family: var(--font-display);
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       color: var(--text-muted);
+      opacity: 0.9;
     }
     .page-live {
-      font-size: 12px;
-      color: var(--success);
+      font-size: 13px;
+      color: var(--accent);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
     }
     .page-live .dot {
       width: 6px; height: 6px; border-radius: 50%;
-      background: var(--success);
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
       animation: liveDot 2s ease-in-out infinite;
     }
     @keyframes liveDot {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-      50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+      50% { opacity: 0.85; box-shadow: 0 0 12px var(--accent); }
     }
     .search-input {
       width: 100%;
@@ -347,12 +364,12 @@
       background: linear-gradient(180deg, var(--surface-soft) 0%, var(--surface) 100%);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 26px;
-      margin-bottom: 24px;
-      box-shadow: inset 0 1px 0 rgba(0,245,255,0.05);
+      padding: 28px 30px;
+      margin-bottom: 28px;
+      box-shadow: inset 0 1px 0 rgba(0,245,255,0.05), 0 4px 24px rgba(0,0,0,0.15);
       transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
-    .section-card:hover { box-shadow: 0 0 24px rgba(0,245,255,0.08), inset 0 1px 0 rgba(0,245,255,0.08); border-color: var(--border-strong); }
+    .section-card:hover { box-shadow: 0 0 28px rgba(0,245,255,0.06), inset 0 1px 0 rgba(0,245,255,0.08); border-color: var(--border-strong); }
     .section-card h3 {
       font-family: var(--font-display);
       font-size: 11px;
@@ -360,7 +377,9 @@
       text-transform: uppercase;
       letter-spacing: 0.18em;
       color: var(--text-muted);
-      margin: 0 0 16px 0;
+      margin: 0 0 20px 0;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
     }
     .logs-list { margin: 0; padding: 0; list-style: none; }
     .logs-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: monospace; }
@@ -524,39 +543,46 @@
     .badge-manual { background: var(--surface-hover); color: var(--text-muted); }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 32px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 36px;
+      width: 100%;
     }
     .card {
-      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-soft) 100%);
+      background: linear-gradient(165deg, var(--surface) 0%, var(--surface-soft) 100%);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 26px;
-      box-shadow: inset 0 1px 0 rgba(0,245,255,0.04);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      padding: 28px 30px;
+      box-shadow: inset 0 1px 0 rgba(0,245,255,0.05), 0 4px 20px rgba(0,0,0,0.2);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
     .card:hover {
       border-color: var(--accent);
-      box-shadow: 0 0 28px rgba(0,245,255,0.12), inset 0 1px 0 rgba(0,245,255,0.1);
+      box-shadow: 0 0 32px rgba(0,245,255,0.1), inset 0 1px 0 rgba(0,245,255,0.08);
+      transform: translateY(-2px);
     }
     .card .label {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
     .card .value {
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       color: var(--text);
+      line-height: 1.2;
+      text-shadow: 0 0 20px rgba(0,245,255,0.08);
     }
     .card .hint {
       font-size: 12px;
       color: var(--text-muted);
-      margin-top: 8px;
+      margin-top: 12px;
+      line-height: 1.45;
     }
     .table-wrap {
       background: linear-gradient(180deg, var(--surface) 0%, var(--surface-soft) 100%);
@@ -819,17 +845,246 @@
     .modal-panel.active { display: block; }
     .modal-footer { padding: 0 24px 24px; }
     .modal-footer .btn-primary { width: 100%; justify-content: center; }
+    /* 添加账号弹窗：与列表「名称 / 来源 / Account ID」对应，按钮与输入框美化 */
+    .modal-add-account .modal { max-width: 520px; }
+    .modal-add-account .modal-header {
+      border-bottom-color: var(--border-strong);
+      padding: 20px 28px;
+    }
+    .modal-add-account .modal-header h2 {
+      font-family: var(--font-display);
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      text-shadow: 0 0 24px var(--accent-muted);
+    }
+    .modal-add-account .modal-close {
+      width: 40px; height: 40px;
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      font-size: 24px;
+    }
+    .modal-add-account .modal-close:hover {
+      background: var(--danger-muted);
+      color: var(--danger);
+    }
+    .modal-add-account .modal-body { padding: 24px 28px 20px; }
+    .modal-add-account .modal-body > p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .modal-add-account .modal-desc {
+      padding: 16px 20px;
+      background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(0,245,255,0.04) 100%);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      margin-bottom: 22px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .modal-add-account .modal-desc code {
+      background: var(--accent-muted);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .modal-add-account .modal-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .modal-add-account .modal-tabs .modal-tab {
+      flex: 1;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .modal-add-account .modal-tabs .modal-tab:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+    .modal-add-account .modal-tabs .modal-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-muted);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(0,245,255,0.2);
+    }
+    .modal-add-account .form-group {
+      margin-bottom: 20px;
+    }
+    .modal-add-account .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .modal-add-account .form-group input[type="text"],
+    .modal-add-account .form-group textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .modal-add-account .form-group textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+    }
+    .modal-add-account .form-group input:focus,
+    .modal-add-account .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-muted), 0 0 24px rgba(0,245,255,0.15);
+    }
+    .modal-add-account .form-group input::placeholder,
+    .modal-add-account .form-group textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+    .modal-add-account .file-input-wrap {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .modal-add-account .file-input-wrap input[type="file"] {
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .modal-add-account .file-input-wrap .file-input-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 24px;
+      min-width: 120px;
+      height: 48px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #000;
+      background: linear-gradient(135deg, var(--accent) 0%, #00c4cc 100%);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0,245,255,0.3);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .modal-add-account .file-input-wrap .file-input-btn:hover {
+      box-shadow: 0 0 28px rgba(0,245,255,0.5);
+      transform: translateY(-1px);
+    }
+    .modal-add-account .file-input-wrap .file-input-name {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      min-height: 48px;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .modal-add-account .file-input-wrap .file-input-name.has-file {
+      color: var(--accent);
+      border-color: var(--accent-muted);
+    }
+    .modal-add-account .form-group input[type="file"] {
+      padding: 12px 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .modal-add-account .form-group input[type="file"]:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .modal-add-account .modal-table-hint {
+      font-size: 13px;
+      color: var(--text);
+      margin: 20px 0 0;
+      padding: 16px 20px;
+      background: linear-gradient(90deg, var(--accent-muted) 0%, var(--bg-elevated) 100%);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--accent);
+      line-height: 1.65;
+      box-shadow: 0 0 20px rgba(0,245,255,0.08);
+    }
+    .modal-add-account .modal-table-hint strong { color: var(--accent); }
+    .modal-add-account .modal-footer {
+      padding: 20px 28px 28px;
+    }
+    .modal-add-account .modal-footer .btn-primary {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent) 0%, #00c4cc 100%);
+      border: none;
+      color: #000;
+      box-shadow: 0 0 24px rgba(0,245,255,0.35);
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .modal-add-account .modal-footer .btn-primary:hover {
+      box-shadow: 0 0 32px rgba(0,245,255,0.5);
+      transform: translateY(-1px);
+    }
     .cli-hint {
-      margin-top: 18px;
-      padding: 14px 16px;
+      margin-top: 20px;
+      padding: 18px 20px;
       background: var(--bg-elevated);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+      box-shadow: 0 0 16px rgba(0,0,0,0.15);
     }
-    .cli-hint code { color: var(--accent); background: transparent; padding: 0; }
+    .modal-add-account .cli-hint {
+      margin-top: 16px;
+      padding: 16px 20px;
+      font-size: 13px;
+      background: linear-gradient(90deg, rgba(0,245,255,0.06) 0%, var(--bg-elevated) 100%);
+    }
+    .cli-hint code,
+    .modal-add-account .cli-hint code {
+      color: var(--accent);
+      background: var(--accent-muted);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    }
     .msg {
       font-size: 14px;
       padding: 12px 14px;
@@ -912,7 +1167,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .oauth-banner.success { background: var(--success-muted); color: var(--success); border: 1px solid rgba(0,255,136,0.3); box-shadow: 0 0 20px rgba(0,255,136,0.15); }
-    .oauth-banner.error { background: var(--danger-muted); color: #ff6b8a; border: 1px solid rgba(255,51,102,0.3); box-shadow: 0 0 20px rgba(255,51,102,0.1); }
+    .oauth-banner.error { background: var(--danger-muted); color: #ff6b8a; border: 1px solid rgba(255,51,102,0.3); box-shadow: 0 0 20px rgba(255,51,102,0.1); white-space: pre-line; }
     .btn-copy { margin-right: 8px; }
     .oauth-success-card {
       background: var(--bg-elevated);
@@ -932,6 +1187,17 @@
       text-decoration: none; cursor: pointer; transition: all 0.2s ease;
     }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 16px rgba(0,245,255,0.1); }
+    #btnAddAccount {
+      padding: 10px 20px;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border-color: var(--border-strong);
+    }
+    #btnAddAccount:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(0,245,255,0.15);
+    }
     .invoke-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .invoke-nav-btn {
       padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -991,10 +1257,23 @@
     .doc-cmd-block:last-child { margin-bottom: 0; }
     .quota-total-card { margin-bottom: 20px; }
     .quota-total-bar-wrap { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
-    .chart-wrap { position: relative; width: 100%; min-height: 320px; margin: 16px 0; padding: 8px 0; }
-    .chart-wrap canvas { max-width: 100%; height: auto !important; }
-    .chart-hint { font-size: 13px; color: var(--text-muted); margin-top: 10px; }
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      margin: 20px 0 8px;
+      padding: 0;
+    }
+    .chart-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+    .chart-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 16px;
+      line-height: 1.55;
+      padding-left: 2px;
+    }
     #dashQuotaChart { display: block; }
+    .section-card { width: 100%; box-sizing: border-box; }
 
     .topbar-menu-btn {
       display: none;
@@ -1237,7 +1516,7 @@
       <div class="logo-icon">CP</div>
       <div>
         <div class="logo-text">Codex Pro API</div>
-        <div class="logo-sub">Proxy v1.0.4</div>
+        <div class="logo-sub">Proxy v1.0.5</div>
       </div>
     </div>
     <nav class="menu">
@@ -1264,7 +1543,7 @@
         </button>
         <div>
           <div class="topbar-title">Codex Pro API</div>
-          <div class="topbar-sub" data-i18n="topbar.subtitle">CODEX PROXY SYSTEM v1.0.4</div>
+          <div class="topbar-sub" data-i18n="topbar.subtitle">CODEX PROXY SYSTEM v1.0.5</div>
         </div>
       </div>
       <div class="topbar-status">
@@ -1302,7 +1581,7 @@
       <div class="section-card">
         <h3 data-i18n="dash.quota_chart">各模型已用 Token 趋势</h3>
         <div class="chart-wrap">
-          <canvas id="dashQuotaChart" width="800" height="280"></canvas>
+          <canvas id="dashQuotaChart"></canvas>
         </div>
         <div class="chart-hint" data-i18n="dash.chart_hint">按 token 计算，所有账号已用 token 合计随时间上升</div>
       </div>
@@ -1360,6 +1639,7 @@
           </div>
           <button type="button" class="btn-icon btn-icon-text" id="btnReloadAccounts" title="Reload" aria-label="Reload">Reload</button>
           <span id="accountsCount" style="font-size: 13px; color: var(--text-muted);">0</span>
+          <button type="button" class="btn-secondary" id="btnAddAccount" data-i18n="accounts.add">Add New Account</button>
           <a href="/auth/login" class="btn-primary" id="oauthLoginBtn" data-i18n="accounts.oauth_login">Login with Codex</a>
         </div>
       </div>
@@ -1474,7 +1754,7 @@
           <div class="card" style="max-width: 100%;">
             <h3 class="settings-section-title" data-i18n="settings.section_about">关于</h3>
             <div class="settings-about">
-              <span class="ver" id="settings-version">v1.0.4</span>
+              <span class="ver" id="settings-version">v1.0.5</span>
               <span data-i18n="settings.about_desc">Codex Pro API · OpenAI 兼容代理</span>
               <div style="margin-top: 10px;">
                 <a href="https://github.com/violettoolssite/codexProapi" target="_blank" rel="noopener" style="color: var(--accent); font-size: 12px;">GitHub</a>
@@ -1517,6 +1797,47 @@
       </div>
     </div>
   </main>
+  </div>
+
+  <div class="modal-overlay" id="addAccountModalOverlay" aria-hidden="true">
+    <div class="modal modal-add-account" role="dialog" aria-labelledby="addAccountModalTitle">
+      <div class="modal-header">
+        <h2 id="addAccountModalTitle" data-i18n="modal.add_title">添加账号</h2>
+        <button type="button" class="modal-close" id="addAccountModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" data-i18n="modal.desc">粘贴 Codex auth.json 内容或上传文件，该账号将参与轮询请求。</p>
+        <div class="modal-tabs">
+          <button type="button" class="modal-tab active" data-tab="paste" data-i18n="modal.paste_tab">粘贴 JSON</button>
+          <button type="button" class="modal-tab" data-tab="upload" data-i18n="modal.upload_tab">上传文件</button>
+        </div>
+        <div id="addAccountPanelPaste" class="modal-panel active">
+          <div class="form-group">
+            <label data-i18n="modal.auth_content">auth.json 内容</label>
+            <textarea id="addAccountAuthText" data-i18n-placeholder="modal.auth_placeholder" placeholder='{"tokens":{"access_token":"...","account_id":"..."}}' rows="6"></textarea>
+          </div>
+        </div>
+        <div id="addAccountPanelUpload" class="modal-panel">
+          <div class="form-group">
+            <label data-i18n="modal.select_file">选择 auth.json 文件</label>
+            <div class="file-input-wrap">
+              <input type="file" id="addAccountFile" accept=".json,application/json">
+              <button type="button" class="file-input-btn" id="addAccountFileBtn" data-i18n="modal.select_file_btn">选择文件</button>
+              <span class="file-input-name" id="addAccountFileName" data-i18n="modal.no_file">未选择文件</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.name_label">名称（选填）</label>
+          <input type="text" id="addAccountName" data-i18n-placeholder="modal.name_placeholder" placeholder="">
+        </div>
+        <p class="modal-table-hint" data-i18n-html="modal.table_hint_html">添加后在账号列表中显示：<strong>名称</strong>、<strong>来源</strong>、<strong>Account ID</strong>。</p>
+        <p class="cli-hint" data-i18n="modal.cli_hint">从 ~/.codex/auth.json（Windows：%USERPROFILE%\.codex\auth.json）复制内容粘贴到上方。</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" id="addAccountSubmit" data-i18n="modal.add_btn">添加账号</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js'"></script>
@@ -1602,8 +1923,7 @@
         data: { labels: labels, datasets: datasets },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 800 / 320,
+          maintainAspectRatio: false,
           scales: {
             x: {
               grid: { color: 'rgba(255,255,255,0.14)' },
@@ -1635,7 +1955,7 @@
         'nav.invoke': '调用',
         'nav.logs': '日志',
         'nav.settings': '设置',
-        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.4',
+        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.5',
         'topbar.online': '在线',
         'page.dashboard': '仪表盘',
         'page.models': '模型',
@@ -1724,10 +2044,15 @@
         'modal.paste_tab': '粘贴 JSON',
         'modal.upload_tab': '上传文件',
         'modal.name_optional': '备注名（选填）',
+        'modal.name_label': '名称（选填）',
+        'modal.table_hint': '添加后在账号列表中显示：名称、来源、Account ID。',
         'modal.name_placeholder': '例如：主号',
         'modal.auth_content': 'auth.json 内容',
         'modal.auth_placeholder': '{"tokens":{"access_token":"...","account_id":"..."}}',
         'modal.select_file': '选择 auth.json 文件',
+        'modal.select_file_btn': '选择文件',
+        'modal.no_file': '未选择文件',
+        'modal.table_hint_html': '添加后在账号列表中显示：<strong>名称</strong>、<strong>来源</strong>、<strong>Account ID</strong>。',
         'modal.or': '或',
         'modal.oauth_hint': '— 跳转至 OpenAI 登录后自动添加账号。',
         'modal.cli_hint': '从 <code>~/.codex/auth.json</code>（Windows：<code>%USERPROFILE%\\.codex\\auth.json</code>）复制内容粘贴到上方。',
@@ -1746,6 +2071,7 @@
         'msg.oauth_close_btn': '关闭此标签页',
         'msg.oauth_return_btn': '返回主页面',
         'msg.oauth_error': 'OAuth 登录失败：',
+        'msg.oauth_error_region': '您所在地区可能无法使用该登录方式。可尝试：使用网络代理（VPN）后重试，或从已登录设备复制 auth.json，在本页「添加账号」里粘贴添加。',
         'footer.violetteam': '推荐使用 free.violetteam.cloud<br>注册 ChatGPT 小号并添加',
         'footer.github': 'GitHub',
       },
@@ -1758,7 +2084,7 @@
         'nav.invoke': 'Invoke',
         'nav.logs': 'Logs',
         'nav.settings': 'Settings',
-        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.4',
+        'topbar.subtitle': 'CODEX PROXY SYSTEM v1.0.5',
         'topbar.online': 'ONLINE',
         'page.dashboard': 'Dashboard',
         'page.models': 'Models',
@@ -1847,10 +2173,15 @@
         'modal.paste_tab': 'Paste JSON',
         'modal.upload_tab': 'Upload File',
         'modal.name_optional': 'Name (optional)',
+        'modal.name_label': 'Name (optional)',
+        'modal.table_hint': 'After adding, the list will show: Name, Source, Account ID.',
         'modal.name_placeholder': 'e.g. Main account',
         'modal.auth_content': 'auth.json content',
         'modal.auth_placeholder': '{"tokens":{"access_token":"...","account_id":"..."}}',
         'modal.select_file': 'Select auth.json file',
+        'modal.select_file_btn': 'Select file',
+        'modal.no_file': 'No file selected',
+        'modal.table_hint_html': 'After adding, the list will show: <strong>Name</strong>, <strong>Source</strong>, <strong>Account ID</strong>.',
         'modal.or': 'OR',
         'modal.oauth_hint': '— redirects to OpenAI to sign in, then adds the account automatically.',
         'modal.cli_hint': 'Copy from <code>~/.codex/auth.json</code> (Windows: <code>%USERPROFILE%\\.codex\\auth.json</code>) and paste above.',
@@ -1869,6 +2200,7 @@
         'msg.oauth_close_btn': 'Close this tab',
         'msg.oauth_return_btn': 'Return to main page',
         'msg.oauth_error': 'OAuth login failed: ',
+        'msg.oauth_error_region': 'Your region may not be supported for this login. You can try: use a VPN and retry, or copy auth.json from a device where you are already logged in, then paste it in "Add account" on this page.',
         'footer.violetteam': 'Recommend: free.violetteam.cloud<br>for ChatGPT accounts',
         'footer.github': 'GitHub',
       },
@@ -2112,6 +2444,89 @@
       });
     }
 
+    (function initAddAccountModal() {
+      var overlay = document.getElementById('addAccountModalOverlay');
+      var btnOpen = document.getElementById('btnAddAccount');
+      var btnClose = document.getElementById('addAccountModalClose');
+      var btnSubmit = document.getElementById('addAccountSubmit');
+      var authText = document.getElementById('addAccountAuthText');
+      var nameInput = document.getElementById('addAccountName');
+      var fileInput = document.getElementById('addAccountFile');
+      var fileBtn = document.getElementById('addAccountFileBtn');
+      var fileNameEl = document.getElementById('addAccountFileName');
+      if (!overlay || !btnOpen) return;
+      function openModal() {
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        authText.value = '';
+        nameInput.value = '';
+        fileInput.value = '';
+        if (fileNameEl) {
+          fileNameEl.textContent = typeof t === 'function' ? t('modal.no_file') : 'No file selected';
+          fileNameEl.classList.remove('has-file');
+        }
+        document.querySelectorAll('#addAccountModalOverlay .modal-tab').forEach(function (tb) {
+          tb.classList.toggle('active', tb.dataset.tab === 'paste');
+        });
+        document.getElementById('addAccountPanelPaste').classList.add('active');
+        document.getElementById('addAccountPanelUpload').classList.remove('active');
+      }
+      function closeModal() {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      btnOpen.addEventListener('click', openModal);
+      btnClose.addEventListener('click', closeModal);
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+      document.querySelectorAll('#addAccountModalOverlay .modal-tab').forEach(function (tb) {
+        tb.addEventListener('click', function () {
+          var tab = tb.dataset.tab;
+          document.querySelectorAll('#addAccountModalOverlay .modal-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
+          document.getElementById('addAccountPanelPaste').classList.toggle('active', tab === 'paste');
+          document.getElementById('addAccountPanelUpload').classList.toggle('active', tab === 'upload');
+        });
+      });
+      if (fileBtn && fileInput) fileBtn.addEventListener('click', function () { fileInput.click(); });
+      fileInput.addEventListener('change', function () {
+        var f = fileInput.files && fileInput.files[0];
+        if (fileNameEl) {
+          fileNameEl.textContent = f ? f.name : (typeof t === 'function' ? t('modal.no_file') : 'No file selected');
+          fileNameEl.classList.toggle('has-file', !!f);
+        }
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function () { authText.value = r.result || ''; };
+        r.readAsText(f);
+      });
+      btnSubmit.addEventListener('click', async function () {
+        var jsonStr = (authText.value || '').trim();
+        if (!jsonStr) {
+          alert(typeof t === 'function' ? t('msg.paste_required') : 'Please paste auth.json content.');
+          return;
+        }
+        try {
+          JSON.parse(jsonStr);
+        } catch (e) {
+          alert((typeof t === 'function' ? t('msg.invalid_json') : 'Invalid JSON.') + ' ' + (e.message || ''));
+          return;
+        }
+        var name = (nameInput.value || '').trim() || undefined;
+        var res = await fetch(API + '/api/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ authJson: jsonStr, name: name })
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (res.ok && data.ok) {
+          closeModal();
+          loadList();
+          if (typeof t === 'function') { var banner = document.getElementById('oauthBanner'); if (banner) { banner.textContent = t('msg.add_success'); banner.className = 'oauth-banner success'; banner.style.display = 'block'; setTimeout(function () { banner.style.display = 'none'; }, 4000); } }
+        } else {
+          alert((typeof t === 'function' ? t('msg.add_failed') : 'Add failed') + (data.error ? ': ' + data.error : ''));
+        }
+      });
+    })();
+
     function setEndpoint() {
       const origin = location.origin;
       const apiBase = origin + '/v1';
@@ -2227,7 +2642,9 @@
           setTimeout(function () { banner.style.display = 'none'; }, 5000);
         }
       } else if (oauth === 'error') {
-        banner.textContent = t('msg.oauth_error') + (msg ? decodeURIComponent(msg) : '');
+        var decodedMsg = msg ? decodeURIComponent(msg) : '';
+        var isRegionRelated = /access_denied|region|country|restrict|not available|unsupported|blocked|geo|location|not supported|denied/i.test(decodedMsg);
+        banner.textContent = t('msg.oauth_error') + decodedMsg + (isRegionRelated ? '\n\n' + t('msg.oauth_error_region') : '');
         banner.className = 'oauth-banner error';
         banner.style.display = 'block';
       }

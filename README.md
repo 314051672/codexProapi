@@ -18,73 +18,76 @@ Exposes **Codex** (gpt-5.3-codex) as an **OpenAI-compatible API** so you can use
 
 ---
 
-## Prerequisites
+## How to get started
 
-- **Node.js** 18 or later
+### Option 1: Desktop app (recommended)
 
-## Run the server
+If you prefer not to use the command line:
 
-**One command (global install; npm installs dependencies automatically):**
+1. Open [GitHub Releases](https://github.com/violettoolssite/codexProapi/releases).
+2. Pick the latest release (e.g. `v1.0.6`) and download the **installer** for your system from **Assets**:
+   - **Windows:** `Codex Pro API Setup x.x.x.exe` (you can choose install path and desktop/Start menu shortcuts)
+   - **macOS:** `Codex Pro API-x.x.x.dmg`
+   - **Linux:** `Codex Pro API-x.x.x.AppImage`
+3. Install and run; it will open **http://localhost:1455/** in your browser. Accounts and data are stored in your local user data directory, separate from the install folder.
+
+### Option 2: Command line
+
+You need **Node.js** 18 or later. In a terminal:
 
 ```bash
 npm install -g codex-proapi
 codex-proapi
 ```
 
-**Or run from project:**
+Or run `npm start` from the project directory after `npm install`. Then open **http://localhost:1455/** in your browser. Default port is **1455**; with global install, account and usage data are stored in `~/.codex-proapi/`.
 
-```bash
-npm install
-npm start
-```
-
-Then open **http://localhost:1455/** in your browser and add Codex accounts via **Login with Codex** (OAuth). The default port is **1455**; set `PORT` if you need another. With global install, account and usage data are stored in `~/.codex-proapi/`.
+---
 
 ## Use in your client (Cline, Cursor, etc.)
 
-| Setting   | Value |
-|----------|--------|
+| Setting     | Value |
+|------------|--------|
 | **Base URL** | `http://localhost:1455/v1` (must include `/v1`; or your host/port + `/v1`) |
 | **Model**    | `gpt-5.3-codex` (or `gpt-5.2-codex`, `gpt-5-codex`, `gpt-5`, `gpt-4`) |
 | **API Key**  | Any value (not validated; auth is from your Codex accounts) |
 
-1. Add accounts at **http://localhost:1455/** by clicking **Login with Codex**.
-2. In your client, set the Base URL (**must include `/v1`**) and model above; API Key can be anything.
+**Steps:**
+
+1. Add accounts at **http://localhost:1455/** on the Accounts page via **Login with Codex** (or **Add account** → **Paste JSON**).
+2. In your client, set the **Base URL** (must include `/v1`) and **model** as above; API Key can be anything.
 3. Send requests as usual; the proxy will use your configured accounts.
 
-No code or server configuration is required beyond adding accounts in the config page.
+---
 
-## Deployment and "Token exchange failed: 403" when binding API
+## "Region not supported" or access_denied when logging in
 
-If the service is behind a **reverse proxy** (e.g. Nginx, Cloudflare) and users open the site via `https://your-domain`, the last step of **binding the API** (exchanging the OAuth code for tokens) may fail with e.g. `Token exchange failed: 403` when the redirect URI does not match the browser URL.
+If you see **region restriction**, **access_denied**, or similar after clicking "Login with Codex", your region or network may not be supported. You can:
 
-**The app trusts the reverse proxy by default** (`trust proxy`) and uses `X-Forwarded-Proto` and `X-Forwarded-Host` to build the OAuth callback URL. If your proxy forwards these headers, **no extra config is needed**:
+1. **Use a VPN** and try "Login with Codex" again.
+2. **Paste auth.json instead**: On a device where Codex login works (e.g. another computer or a browser with VPN), open `~/.codex/auth.json` (Windows: `%USERPROFILE%\\.codex\\auth.json`), copy its contents, then go to Accounts → Add account → Paste JSON and submit.
 
-- **Nginx** example:
-  ```nginx
-  proxy_set_header X-Forwarded-Proto $scheme;
-  proxy_set_header X-Forwarded-Host $host;
-  ```
-- CDNs like **Cloudflare** usually add these headers automatically.
+The same instructions are shown on the page when this error appears.
 
-If the proxy does not send them or you still get 403, set the public URL explicitly:
+---
 
-- **Option 1:** `PUBLIC_URL=https://your-domain` (no trailing slash)
-- **Option 2:** `OAUTH_REDIRECT_URI=https://your-domain/auth/callback`
+## Getting 403 when using a shared / hosted link
 
-After restart, the startup log shows the OAuth callback URL in use. Ensure users **always** open and log in via that URL.
+If you open the service via a link provided by someone else (e.g. `https://example.com`) and get **403** or "Token exchange failed" at the last step of "Login with Codex", the issue is with the server’s OAuth callback configuration. Contact **whoever provides that link** to fix the domain and callback settings; you don’t need to change anything on your side.
 
-## Multi-turn and backend format
-
-The proxy talks to ChatGPT’s Codex backend (`chatgpt.com/backend-api/codex/responses`). That backend only accepts **output**-style content (e.g. `output_text`) for **assistant** messages; sending `input_text` for assistant returns 400. So instead of sending assistant messages as separate items, the proxy **flattens** the full conversation into a single user message: it builds one `input_text` whose body is the dialogue with `User:`, `Assistant:`, and `System:` prefixes. Clients keep using the usual OpenAI format `messages: [{role, content}, ...]`; the proxy performs this conversion for multi-turn.
+---
 
 ## Features
 
-- **Multi-account round-robin** — Requests are distributed across accounts; one account failure automatically switches to the next (failover).
-- **Config page** — Dashboard, Models (quota display), Accounts (OAuth login), Logs (level filter, grep, clear), Settings (language, base URL). Data refreshes every 5 seconds.
+- **Multi-account round-robin** — Requests use your added accounts in turn; if one fails, the next is used automatically.
+- **Config page** — Dashboard, Models (quota), Accounts (OAuth or paste JSON), Logs, Settings (language, base URL). Data refreshes every 5 seconds.
 - **Responsive UI** — Works on desktop and mobile; sidebar collapses to a menu on small screens.
-- **Bilingual** — Interface and log messages in English and 简体中文.
+- **Bilingual** — Interface and logs in English and 简体中文.
+
+Multi-turn conversation is supported; send `messages` in the usual OpenAI format and the proxy will handle the rest.
+
+---
 
 ## Using [free.violetteam.cloud](https://free.violetteam.cloud/) for verification
 
-If you use [free.violetteam.cloud](https://free.violetteam.cloud/) to receive verification emails (e.g. when registering a ChatGPT/Codex account), delivery can be a bit slow—please wait patiently. If you still don’t receive the code after a long time, click **Resend verification code**.
+If you use [free.violetteam.cloud](https://free.violetteam.cloud/) to receive verification emails (e.g. when registering a ChatGPT/Codex account), delivery can be a bit slow—please wait. If you still don’t receive the code after a long time, click **Resend verification code**.
