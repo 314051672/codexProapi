@@ -119,3 +119,9 @@ codex-proapi
 ## 使用 [free.violetteam.cloud](https://free.violetteam.cloud/) 接收验证码
 
 若使用 [free.violetteam.cloud](https://free.violetteam.cloud/) 接收验证邮件（如注册 ChatGPT/Codex 小号），验证码到达可能稍慢，请耐心等待。若长时间未收到，请点击**重发验证码**。
+
+---
+
+## License
+
+MIT. 问题与建议可提交 [GitHub Issues](https://github.com/violettoolssite/codexProapi/issues)。

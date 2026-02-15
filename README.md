@@ -83,6 +83,16 @@ The same instructions are shown on the page when this error appears.
 
 ---
 
+## Request returns "fetch failed" / proxy_error
+
+If `POST /v1/chat/completions` returns `{"error":{"message":"fetch failed",...}}`, the service **cannot reach the Codex backend** (chatgpt.com)—the request failed before getting a response. Check:
+
+1. **At least one account added**: On the config page, Accounts, add one Codex account (OAuth or paste auth.json).
+2. **Can this machine reach chatgpt.com**: In a browser or terminal run `curl -I https://chatgpt.com`. If it times out or is blocked, enable **VPN/proxy** on the machine running the service (same as for "Login with Codex").
+3. **Desktop app**: If using the desktop app, ensure that same PC can reach chatgpt.com (or enable VPN on it).
+
+---
+
 ## Getting 403 when using a shared / hosted link
 
 If you open the service via a link provided by someone else (e.g. `https://example.com`) and get **403** or "Token exchange failed" at the last step of "Login with Codex", the issue is with the server’s OAuth callback configuration. Contact **whoever provides that link** to fix the domain and callback settings; you don’t need to change anything on your side.
@@ -103,3 +113,9 @@ Multi-turn conversation is supported; send `messages` in the usual OpenAI format
 ## Using [free.violetteam.cloud](https://free.violetteam.cloud/) for verification
 
 If you use [free.violetteam.cloud](https://free.violetteam.cloud/) to receive verification emails (e.g. when registering a ChatGPT/Codex account), delivery can be a bit slow—please wait. If you still don’t receive the code after a long time, click **Resend verification code**.
+
+---
+
+## License
+
+MIT. Issues and suggestions: [GitHub Issues](https://github.com/violettoolssite/codexProapi/issues).
