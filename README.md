@@ -6,6 +6,14 @@ Exposes **Codex** (gpt-5.3-codex) as an **OpenAI-compatible API** so you can use
 
 ---
 
+## Architecture
+
+![Codex Pro API architecture](architecture-en.png)
+
+*Clients (Cline, Cursor, etc.) call the OpenAI-compatible API; this service round-robins requests using configured Codex accounts and forwards them to the Codex backend (chatgpt.com).*
+
+---
+
 ## Screenshots
 
 **Accounts — add Codex accounts via Login with Codex (OAuth):**

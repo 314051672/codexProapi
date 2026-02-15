@@ -6,6 +6,14 @@
 
 ---
 
+## 架构示意
+
+![Codex Pro API 架构图](architecture-zh.png)
+
+*客户端（Cline / Cursor 等）通过 OpenAI 兼容接口访问本服务，本服务使用已配置的 Codex 账号轮询请求并转发至 Codex 后端（chatgpt.com）。*
+
+---
+
 ## 演示说明
 
 **账号页 — 通过「使用 Codex 登录」添加账号（OAuth）：**
